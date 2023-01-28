@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet } from 'react-native';
+import { View, TextInput, FlatList, Text, StyleSheet, TouchableHighlight, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import CustomIcon from './CustomIcon';
+import CustomText from './CustomText';
 
 function SearchCityAutocomplete(){
   const [searchText, setSearchText] = useState('');
@@ -11,6 +12,9 @@ function SearchCityAutocomplete(){
   const API_ENDPOINT = `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=`;
 
   const handleTextChange = useCallback((text) => {
+    if(!text){
+      setResults([]);
+    }
     setSearchText(text);
   }, []);
 
@@ -25,6 +29,7 @@ function SearchCityAutocomplete(){
     if(debouncedText) {
       axios.get(API_ENDPOINT + debouncedText)
       .then(response => {
+        console.log(response);
         setResults(response.data);
       })
       .catch(error => {
@@ -33,20 +38,29 @@ function SearchCityAutocomplete(){
     }
   }, [debouncedText]);
 
-  const CityItem = ({cityName}) => (
-    <View>
-      <Text>
-        {cityName}
-      </Text>
-    </View>
+  const setCity = ({city}) => {
+    console.log(city);
+  }
+
+  const CityItem = (city) => (
+    <TouchableOpacity onPress={() => console.log(city)} style={styles.cityNameContainer}>
+      <View style={{flexDirection:"column"}}>
+        <CustomText size={'medium'}>
+          {name}, {region}
+        </CustomText>
+        <CustomText size={'medium'}>
+          {country}
+        </CustomText>
+      </View>
+    </TouchableOpacity>
   )
 
   return (
-    <View>
+    <View style={{flex:1}}>
       <View style={styles.container}>
         <CustomIcon 
           name="search" 
-          size={20}
+          size={15}
           color="black"
           style={{ marginLeft: 1 }}
         />
@@ -55,13 +69,12 @@ function SearchCityAutocomplete(){
           placeholder='Search for a city'
           value={searchText}
           onChangeText={handleTextChange}
-          
         />
       </View>
       <FlatList
         data={results}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <CityItem cityName={item.name} />}
+        renderItem={({ item }) => <CityItem {...item} />}
       />
     </View>
   );
@@ -81,8 +94,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   input: {
-    fontSize: 20,
+    fontSize: 15,
     marginLeft: 10,
     width: "90%",
   },
+  cityNameContainer: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    marginLeft: 15,
+    marginBottom: 10,
+    marginRight: 15,
+  }
 });
