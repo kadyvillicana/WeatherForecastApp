@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
+import { storeData } from '../utils/async-storage-manager';
 
 function SearchCityAutocomplete(){
   const [searchText, setSearchText] = useState('');
@@ -29,7 +30,6 @@ function SearchCityAutocomplete(){
     if(debouncedText) {
       axios.get(API_ENDPOINT + debouncedText)
       .then(response => {
-        console.log(response);
         setResults(response.data);
       })
       .catch(error => {
@@ -38,18 +38,23 @@ function SearchCityAutocomplete(){
     }
   }, [debouncedText]);
 
-  const setCity = ({city}) => {
-    console.log(city);
+  const setCity = async (city) => {
+    if(!city){
+      return
+    }
+    await storeData('citySelected', city);
+    setResults([]);
+    setSearchText('');
   }
 
-  const CityItem = (city) => (
-    <TouchableOpacity onPress={() => console.log(city)} style={styles.cityNameContainer}>
+  const CityItem = ({city}) => (
+    <TouchableOpacity onPress={() => setCity(city)} style={styles.cityNameContainer}>
       <View style={{flexDirection:"column"}}>
         <CustomText size={'medium'}>
-          {name}, {region}
+          {city.name}, {city.region}
         </CustomText>
         <CustomText size={'medium'}>
-          {country}
+          {city.country}
         </CustomText>
       </View>
     </TouchableOpacity>
@@ -74,7 +79,7 @@ function SearchCityAutocomplete(){
       <FlatList
         data={results}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <CityItem {...item} />}
+        renderItem={({ item }) => <CityItem city={item}/>}
       />
     </View>
   );
