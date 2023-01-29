@@ -16,6 +16,7 @@ function CustomText({size, style, children, isPrimary}) {
     <Text style={[
       {
         fontSize:FontSize[size], 
+        fontFamily: "QuattrocentoSans",
         color: (isPrimary ? colors.text : colors.secondaryText),
         ...style
       }

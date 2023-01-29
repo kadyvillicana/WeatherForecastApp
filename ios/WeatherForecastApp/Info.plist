@@ -60,6 +60,10 @@
 		<string>fonts/Foundation.ttf</string>
 		<string>fonts/MaterialCommunityIcons.ttf</string>
 		<string>fonts/MaterialIcons.ttf</string>
+		<string>QuattrocentoSans-Bold.ttf</string>
+		<string>QuattrocentoSans-BoldItalic.ttf</string>
+		<string>QuattrocentoSans-Italic.ttf</string>
+		<string>QuattrocentoSans-Regular.ttf</string>
 	</array>
 </dict>
 </plist>
