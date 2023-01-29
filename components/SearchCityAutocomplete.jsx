@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
-import { storeData } from '../utils/async-storage-manager';
+import { MainWeatherContext } from '../context/MainWeatherContext';
+import { useTheme } from '@react-navigation/native';
 
-function SearchCityAutocomplete(){
+function SearchCityAutocomplete({navigation}){
+  const { colors } = useTheme();
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
   const [results, setResults] = useState([]);
   const API_KEY = '7c33f92506484e488de44806232501';
-  const API_ENDPOINT = `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=`;
+  const API_ENDPOINT_SEARCH = `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=`;
+
+  const { setCity } = useContext(MainWeatherContext);
 
   const handleTextChange = useCallback((text) => {
     if(!text){
@@ -28,7 +32,7 @@ function SearchCityAutocomplete(){
 
   useEffect(() => {
     if(debouncedText) {
-      axios.get(API_ENDPOINT + debouncedText)
+      axios.get(API_ENDPOINT_SEARCH + debouncedText)
       .then(response => {
         setResults(response.data);
       })
@@ -38,22 +42,21 @@ function SearchCityAutocomplete(){
     }
   }, [debouncedText]);
 
-  const setCity = async (city) => {
+  const _setCity = async (city) => {
     if(!city){
       return
     }
-    await storeData('citySelected', city);
-    setResults([]);
-    setSearchText('');
+    setCity(city);
+    navigation.navigate('WeatherCityModal', {coordinates: `${city.lat},${city.lon}` });
   }
 
   const CityItem = ({city}) => (
-    <TouchableOpacity onPress={() => setCity(city)} style={styles.cityNameContainer}>
+    <TouchableOpacity onPress={() => _setCity(city)} style={styles.cityNameContainer}>
       <View style={{flexDirection:"column"}}>
-        <CustomText size={'medium'}>
+        <CustomText size={'small'} isPrimary>
           {city.name}, {city.region}
         </CustomText>
-        <CustomText size={'medium'}>
+        <CustomText size={'small'}>
           {city.country}
         </CustomText>
       </View>
@@ -61,16 +64,18 @@ function SearchCityAutocomplete(){
   )
 
   return (
-    <View style={{flex:1}}>
-      <View style={styles.container}>
+    <View style={{flex:1, marginTop: 30}}>
+      <View style={[styles.container, {backgroundColor: colors.card}]}>
         <CustomIcon 
           name="search" 
           size={15}
-          color="black"
+          color={colors.secondaryText}
           style={{ marginLeft: 1 }}
         />
         <TextInput
-          style={styles.input}
+          isPrimary
+          style={[styles.input, {color: colors.text}]}
+          placeholderTextColor={colors.secondaryText}
           placeholder='Search for a city'
           value={searchText}
           onChangeText={handleTextChange}
@@ -79,6 +84,9 @@ function SearchCityAutocomplete(){
       <FlatList
         data={results}
         keyExtractor={(item) => item.id}
+        ItemSeparatorComponent={() => (
+          <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
+        )}
         renderItem={({ item }) => <CityItem city={item}/>}
       />
     </View>
@@ -95,7 +103,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 10,
     width: "90%",
-    backgroundColor: "#d9dbda",
     borderRadius: 15,
   },
   input: {
@@ -107,7 +114,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     marginLeft: 15,
-    marginBottom: 10,
-    marginRight: 15,
   }
 });

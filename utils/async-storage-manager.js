@@ -12,7 +12,7 @@ const storeData = async (key, data) => {
 const retrieveData = async (key) => {
   try {
     const jsonValue = await AsyncStorage.getItem(key);
-    if(value !== null) {
+    if(jsonValue !== null) {
       return JSON.parse(jsonValue);
     }
   } catch (error) {
@@ -20,4 +20,12 @@ const retrieveData = async (key) => {
   }
 };
 
-export { storeData, retrieveData };
+const removeItem = async (key) => {
+  try {
+    await AsyncStorage.removeItem(key)
+  } catch(error) {
+    console.log(error)
+  }
+}
+
+export { storeData, retrieveData, removeItem };
