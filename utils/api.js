@@ -1,11 +1,12 @@
 import axios from "axios";
 import moment from "moment";
 import { retrieveData, storeData } from "./async-storage-manager";
+import { API_KEY } from '@env';
 
-const API_KEY = '7c33f92506484e488de44806232501';
 const API_ENDPOINT = 'https://api.weatherapi.com/v1/'
 const SEARCH_ENDPOINT = `search.json?key=${API_KEY}&q=`;
-const FORECAST_ENDPOINT = `forecast.json?key=${API_KEY}&aqi=no&alerts=no&days=7&q=`;
+const FORECAST_DAYS = 7
+const FORECAST_ENDPOINT = `forecast.json?key=${API_KEY}&aqi=no&alerts=no&days=${FORECAST_DAYS}&q=`;
 
 const TWELVE_HOURS = 12;
 
