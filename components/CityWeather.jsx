@@ -9,7 +9,7 @@ import { MainWeatherContext } from '../context/MainWeatherContext';
 import { getCityWeather } from '../utils/api';
 
 
-function WeatherCityModal({}) {
+function CityWeather({navigation}) {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const { state, removeCity } = useContext(MainWeatherContext);
@@ -47,7 +47,7 @@ function WeatherCityModal({}) {
     if (coordinates) {
       fetchWeatherData();
     }
-  }, [coordinates, isLoading]);
+  }, [coordinates]);
 
   const refreshWeatherData = () => {
     const fetchWeatherData = async () => {
@@ -67,23 +67,25 @@ function WeatherCityModal({}) {
     const date = moment(item.date);
     const isToday = moment().isSame(date, 'day');
     return (
-      <View style={{alignItems: 'center', justifyContent:'space-around', flexDirection: 'row', margin: 15}}>
-        <View style={{flex: 1}}>
-          <Image
-            style={styles.logo}
-            source={{uri: item.day.condition.icon.replace(/^\/\//, "https:")}}
-          />
+      <TouchableOpacity
+        onPress={() => navigation.navigate('DayWeatherModal', {day: item.date})}>
+        <View style={{alignItems: 'center', justifyContent:'space-around', flexDirection: 'row', margin: 15}}>
+          <View style={{flex: 1}}>
+            <Image
+              style={styles.logo}
+              source={{uri: item.day.condition.icon.replace(/^\/\//, "https:")}}
+            />
+          </View>
+          <View style={{flex: 3, justifyContent:'flex-start'}}>
+            <CustomText size={'medium'} isPrimary>{isToday ? 'Today' : date.format('dddd')}</CustomText>
+            <CustomText style={{paddingTop: 5}}>{item.day.condition.text}</CustomText>
+          </View>
+          <View style={{flex: 2, flexDirection: 'row', justifyContent:'flex-end'}}>
+            <CustomText size={'medium'}>{item.day.mintemp_c}° / </CustomText>
+            <CustomText size={'medium'}>{item.day.maxtemp_c}°</CustomText>
+          </View>
         </View>
-        <View style={{flex: 3, justifyContent:'flex-start'}}>
-          <CustomText size={'medium'} isPrimary>{isToday ? 'Today' : date.format('dddd')}</CustomText>
-          <CustomText style={{paddingTop: 5}}>{item.day.condition.text}</CustomText>
-        </View>
-        <View style={{flex: 2, flexDirection: 'row', justifyContent:'flex-end'}}>
-        <CustomText size={'medium'}>{item.day.mintemp_c}° / </CustomText>
-        <CustomText size={'medium'}>{item.day.maxtemp_c}°</CustomText>
-
-        </View>
-      </View>
+      </TouchableOpacity>
     )
 
   }
@@ -182,7 +184,7 @@ function WeatherCityModal({}) {
   );
 }
 
-export default WeatherCityModal;
+export default CityWeather;
 
 const styles = StyleSheet.create({
   container: {

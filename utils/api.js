@@ -41,4 +41,16 @@ const getCityWeather = async (coordinates, updateWeather) => {
 	}
 }
 
-export { getAutocompleteCities, getCityWeather };
+const getDayWeather = async (day) => {
+	try {
+		const storedData = await retrieveData('cityWeather');
+		if(storedData && storedData.forecast && storedData.forecast.forecastday) {
+			return storedData.forecast.forecastday.find((item) => item.date==day);
+
+		}
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+export { getAutocompleteCities, getCityWeather, getDayWeather };

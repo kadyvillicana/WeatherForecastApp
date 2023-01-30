@@ -5,7 +5,8 @@ import { StyleSheet } from 'react-native';
 import SearchCityAutocomplete from './components/SearchCityAutocomplete';
 import { removeItem, retrieveData, storeData } from './utils/async-storage-manager';
 import { MainWeatherContext } from './context/MainWeatherContext';
-import WeatherCityModal from './components/CityWeather';
+import CityWeather from './components/CityWeather';
+import DayWeatherModal from './components/DayWeatherModal';
 
 const Stack = createNativeStackNavigator();
 
@@ -86,15 +87,18 @@ function App(){
     <MainWeatherContext.Provider value={cityContext}>
       <NavigationContainer theme={MyTheme}>
         <Stack.Navigator>
-          <Stack.Group>
             {
               state.isCitySelected ? (
-                <Stack.Screen name="WeatherCityModal" component={WeatherCityModal} options={{headerShown: false}} />
+                <Stack.Group screenOptions={{ presentation: 'modal' }}>
+                  <Stack.Screen name="CityWeather" component={CityWeather} options={{headerShown: false}} />
+                  <Stack.Screen name="DayWeatherModal" component={DayWeatherModal}  options={{headerShown: false}}/>
+                </Stack.Group>
                 ) : (
-                  <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
+                  <Stack.Group>
+                    <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
+                  </Stack.Group>
               )
             }
-          </Stack.Group>
           {/* <Stack.Group screenOptions={{ presentation: 'modal' }}>
           </Stack.Group> */}
           {/* {state.isCitySelected ? (
