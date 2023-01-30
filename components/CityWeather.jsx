@@ -18,7 +18,7 @@ function WeatherCityModal({route, navigation}) {
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
-        const data = await getCityWeather(coordinates);
+        const data = await getCityWeather(coordinates, false);
         setWeather(data);
       } catch (error) {
         console.log(error);
@@ -115,9 +115,6 @@ function WeatherCityModal({route, navigation}) {
             <FlatList
               data={weather.forecast.forecastday}
               keyExtractor={(item) => item.date}
-              // ItemSeparatorComponent={() => (
-              //   <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
-              // )}
               renderItem={({ item }) => dayWeatherItemList({item})}
             />
           </View>
@@ -125,7 +122,6 @@ function WeatherCityModal({route, navigation}) {
           :
           <></>
       }
-      {/* <Button onPress={() => navigation.goBack()} title="Dismiss" /> */}
     </SafeAreaView>
   );
 }

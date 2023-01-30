@@ -1,9 +1,13 @@
 import axios from "axios";
+import moment from "moment";
+import { retrieveData, storeData } from "./async-storage-manager";
 
 const API_KEY = '7c33f92506484e488de44806232501';
 const API_ENDPOINT = 'https://api.weatherapi.com/v1/'
 const SEARCH_ENDPOINT = `search.json?key=${API_KEY}&q=`;
 const FORECAST_ENDPOINT = `forecast.json?key=${API_KEY}&aqi=no&alerts=no&days=7&q=`;
+
+const TWELVE_HOURS = 12;
 
 const getAutocompleteCities = async (query) => {
   try {
@@ -17,10 +21,19 @@ const getAutocompleteCities = async (query) => {
 	}
 }
 
-const getCityWeather = async (coordinates) => {
+const getCityWeather = async (coordinates, updateWeather) => {
 	try {
+		const storedData = await retrieveData('cityWeather');
+		const now = moment();
+		if(storedData && !updateWeather) {
+			const dataAge = now.diff(moment(storedData.current.last_updated), 'hours');
+			if (dataAge <  TWELVE_HOURS) {
+				return storedData;
+			}
+		}
 		const response = await axios.get(API_ENDPOINT + FORECAST_ENDPOINT + coordinates);
 		if(response && response.data) {
+			await storeData('cityWeather', response.data);
 			return response.data;
 		}
 	} catch (error) {
