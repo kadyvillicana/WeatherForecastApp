@@ -1,12 +1,12 @@
 import { useTheme } from '@react-navigation/native';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { getDayWeather } from '../utils/api';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 
-function DayWeatherModal({route}) {
+function DayWeatherModal({route, navigation}) {
 	const {colors} = useTheme();
 	const {day} = route.params;
 	const [weather, setWeather] = useState(null);
@@ -59,7 +59,16 @@ function DayWeatherModal({route}) {
 
   return (
     <View style={{flex: 1}}>
-			<View style={{alignItems: 'center', margin: 15}}>
+			<View style={{alignItems: 'center', margin: 15, flexDirection: 'row'}}>
+        <TouchableOpacity
+              onPress={() => { navigation.goBack(); }}>
+              <CustomIcon 
+                name="arrow-left" 
+                size={25}
+                color={colors.secondaryText}
+                style={{ marginLeft: 1, padding: 10 }}
+              />
+            </TouchableOpacity>
 				<CustomText size={'large'} isPrimary >{moment(day).format('dddd')}</CustomText>
 			</View>
 			<View style=
