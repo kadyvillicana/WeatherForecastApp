@@ -5,14 +5,13 @@ import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import { MainWeatherContext } from '../context/MainWeatherContext';
 import { useTheme } from '@react-navigation/native';
+import { getAutocompleteCities } from '../utils/api';
 
 function SearchCityAutocomplete({navigation}){
   const { colors } = useTheme();
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
   const [results, setResults] = useState([]);
-  const API_KEY = '7c33f92506484e488de44806232501';
-  const API_ENDPOINT_SEARCH = `https://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=`;
 
   const { setCity } = useContext(MainWeatherContext);
 
@@ -23,6 +22,12 @@ function SearchCityAutocomplete({navigation}){
     setSearchText(text);
   }, []);
 
+  const clear = () => {
+    setResults([]);
+    setSearchText('');
+    setDebouncedText('');
+  }
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedText(searchText);
@@ -31,14 +36,16 @@ function SearchCityAutocomplete({navigation}){
   }, [searchText]);
 
   useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const data = await getAutocompleteCities(debouncedText)
+        setResults(data);
+      } catch(error) {
+        console.log(error);
+      }
+    }
     if(debouncedText) {
-      axios.get(API_ENDPOINT_SEARCH + debouncedText)
-      .then(response => {
-        setResults(response.data);
-      })
-      .catch(error => {
-        console.log(JSON.stringify(error));
-      })
+      fetchCities();
     }
   }, [debouncedText]);
 
@@ -46,17 +53,18 @@ function SearchCityAutocomplete({navigation}){
     if(!city){
       return
     }
-    setCity(city);
-    navigation.navigate('WeatherCityModal', {coordinates: `${city.lat},${city.lon}` });
+    setCity(`${city.lat},${city.lon}`);
+    clear();
+    // navigation.navigate('WeatherCityModal', {coordinates: `${city.lat},${city.lon}` });
   }
 
   const CityItem = ({city}) => (
     <TouchableOpacity onPress={() => _setCity(city)} style={styles.cityNameContainer}>
       <View style={{flexDirection:"column"}}>
-        <CustomText size={'small'} isPrimary>
+        <CustomText size={'medium'} isPrimary>
           {city.name}, {city.region}
         </CustomText>
-        <CustomText size={'small'}>
+        <CustomText size={'medium'}>
           {city.country}
         </CustomText>
       </View>

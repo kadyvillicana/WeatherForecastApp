@@ -1,25 +1,25 @@
 import { useTheme } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import moment from "moment";
+import { MainWeatherContext } from '../context/MainWeatherContext';
+import { getCityWeather } from '../utils/api';
 
 
 function WeatherCityModal({route, navigation}) {
   const { colors } = useTheme();
-  const { coordinates } = route.params;
+  const { state } = useContext(MainWeatherContext);
+  const coordinates = state.city;
   const [weather, setWeather] = useState(null);
-  const API_KEY = '7c33f92506484e488de44806232501';
-  const API_ENDPOINT_CURRENT = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&aqi=no&alerts=no&days=7&q=`;
-
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
-        const response = await axios.get(API_ENDPOINT_CURRENT+coordinates);
-        setWeather(response.data);
+        const data = await getCityWeather(coordinates);
+        setWeather(data);
       } catch (error) {
         console.log(error);
       }
@@ -56,7 +56,7 @@ function WeatherCityModal({route, navigation}) {
   }
 
   return (
-    <View style={{flex: 1, marginTop: 15}}>
+    <SafeAreaView style={{flex: 1, marginTop: 15}}>
       {
         weather !== null ? 
         <View style={{flex: 1}}>
@@ -126,7 +126,7 @@ function WeatherCityModal({route, navigation}) {
           <></>
       }
       {/* <Button onPress={() => navigation.goBack()} title="Dismiss" /> */}
-    </View>
+    </SafeAreaView>
   );
 }
 

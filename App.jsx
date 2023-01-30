@@ -1,11 +1,11 @@
-import React, { useEffect, } from 'react';
+import React, { useEffect, useMemo, useState, } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer} from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import SearchCityAutocomplete from './components/SearchCityAutocomplete';
 import { removeItem, retrieveData, storeData } from './utils/async-storage-manager';
 import { MainWeatherContext } from './context/MainWeatherContext';
-import WeatherCityModal from './components/WeatherCityModal';
+import WeatherCityModal from './components/CityWeather';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,7 +55,7 @@ function App(){
     bootstrapAsync();
   }, []);
 
-  const authContext = React.useMemo(
+  const cityContext = useMemo(
     () => ({
       setCity: async (data) => {
         await storeData('citySelected', data);
@@ -65,11 +65,9 @@ function App(){
         dispatch({ type: 'REMOVE_CITY' })
         await removeItem('citySelected');
       },
-      getCity: () => {
-        return state.city
-      }
+      state,
     }),
-    []
+    [state]
   );
 
   const MyTheme = {
@@ -84,15 +82,20 @@ function App(){
   };
 
   return (
-    <MainWeatherContext.Provider value={authContext}>
+    <MainWeatherContext.Provider value={cityContext}>
       <NavigationContainer theme={MyTheme}>
         <Stack.Navigator>
           <Stack.Group>
-            <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
+            {
+              state.isCitySelected ? (
+                <Stack.Screen name="WeatherCityModal" component={WeatherCityModal} options={{headerShown: false}} />
+              ) : (
+                <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
+              )
+            }
           </Stack.Group>
-          <Stack.Group screenOptions={{ presentation: 'modal' }}>
-            <Stack.Screen name="WeatherCityModal" component={WeatherCityModal} options={{headerShown: false}} />
-          </Stack.Group>
+          {/* <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          </Stack.Group> */}
           {/* {state.isCitySelected ? (
             <Stack.Screen name="City" component={MainWeatherScreen} />
             ): (
