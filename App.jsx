@@ -17,7 +17,6 @@ function App(){
           return {
             ...prevState,
             city: action.city,
-            isLoading: false,
             isCitySelected: true,
           };
         case 'SET_CITY':
@@ -35,7 +34,6 @@ function App(){
       }
     },
     {
-      isLoading: true,
       isCitySelected: false,
       city: null,
     }
@@ -46,11 +44,13 @@ function App(){
       let citySelected;
       try {
         citySelected = await retrieveData('citySelected');
+        if(citySelected) {
+          dispatch({type: 'RESTORE_CITY', city: citySelected})
+        }
       }
       catch (error) {
         console.log(error);
       }
-      dispatch({type: 'RESTORE_CITY', city: citySelected})
     }
     bootstrapAsync();
   }, []);
@@ -64,6 +64,7 @@ function App(){
       removeCity: async () =>  {
         dispatch({ type: 'REMOVE_CITY' })
         await removeItem('citySelected');
+        await removeItem('cityWeather');
       },
       state,
     }),
@@ -89,8 +90,8 @@ function App(){
             {
               state.isCitySelected ? (
                 <Stack.Screen name="WeatherCityModal" component={WeatherCityModal} options={{headerShown: false}} />
-              ) : (
-                <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
+                ) : (
+                  <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
               )
             }
           </Stack.Group>

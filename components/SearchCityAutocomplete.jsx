@@ -55,7 +55,6 @@ function SearchCityAutocomplete({navigation}){
     }
     setCity(`${city.lat},${city.lon}`);
     clear();
-    // navigation.navigate('WeatherCityModal', {coordinates: `${city.lat},${city.lon}` });
   }
 
   const CityItem = ({city}) => (

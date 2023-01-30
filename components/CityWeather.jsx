@@ -1,7 +1,7 @@
 import { useTheme } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import moment from "moment";
@@ -9,17 +9,36 @@ import { MainWeatherContext } from '../context/MainWeatherContext';
 import { getCityWeather } from '../utils/api';
 
 
-function WeatherCityModal({route, navigation}) {
+function WeatherCityModal({}) {
   const { colors } = useTheme();
-  const { state } = useContext(MainWeatherContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const { state, removeCity } = useContext(MainWeatherContext);
   const coordinates = state.city;
-  const [weather, setWeather] = useState(null);
+  const [weather, setWeather] = useState({
+    location: {
+      name: '-'
+    },
+    current: {
+      temp_c: '-',
+      condition: {
+        text: '-',
+        icon: '',
+        wind_kph: '',
+        uv: '',
+        humidity: '',
+      }
+    },
+    forecast: {
+      forecastday: []
+    }
+  });
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
         const data = await getCityWeather(coordinates, false);
         setWeather(data);
+        setIsLoading(false);
       } catch (error) {
         console.log(error);
       }
@@ -28,7 +47,21 @@ function WeatherCityModal({route, navigation}) {
     if (coordinates) {
       fetchWeatherData();
     }
-  }, [coordinates]);
+  }, [coordinates, isLoading]);
+
+  const refreshWeatherData = () => {
+    const fetchWeatherData = async () => {
+      try {
+        const data = await getCityWeather(coordinates, true);
+        setWeather(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    setIsLoading(true);
+    fetchWeatherData();
+  }
 
   const dayWeatherItemList = ({item}) => {
     const date = moment(item.date);
@@ -37,7 +70,7 @@ function WeatherCityModal({route, navigation}) {
       <View style={{alignItems: 'center', justifyContent:'space-around', flexDirection: 'row', margin: 15}}>
         <View style={{flex: 1}}>
           <Image
-            style={styles.tinyLogo}
+            style={styles.logo}
             source={{uri: item.day.condition.icon.replace(/^\/\//, "https:")}}
           />
         </View>
@@ -55,21 +88,47 @@ function WeatherCityModal({route, navigation}) {
 
   }
 
+  if(isLoading) {
+    return (
+      <SafeAreaView style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
+        <ActivityIndicator />
+      </SafeAreaView>
+    )
+  }
+
   return (
     <SafeAreaView style={{flex: 1, marginTop: 15}}>
-      {
-        weather !== null ? 
         <View style={{flex: 1}}>
-          <View style={{alignItems: 'center'}}>
+          <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around'}}>
+            <TouchableOpacity
+              onPress={() => { removeCity() }}>
+              <CustomIcon 
+                name="exchange" 
+                size={25}
+                color={colors.secondaryText}
+                style={{ marginLeft: 1, padding: 10 }}
+              />
+            </TouchableOpacity>
             <CustomText size={'large'} isPrimary >{weather.location.name}</CustomText>
+            <TouchableOpacity
+              onPress={() => { refreshWeatherData() }}>
+              <CustomIcon 
+                name="refresh" 
+                size={25}
+                color={colors.secondaryText}
+                style={{ marginLeft: 1, padding: 10 }}
+              />
+            </TouchableOpacity>
           </View>
           <View style={{alignItems: 'center'}}>
             <CustomText size={'mega'}>{weather.current.temp_c}°</CustomText>
           </View>
-          <View style={{flexDirection:'row', justifyContent: 'center', alignItems: 'center'}}>
+          <View style={{flexDirection:'row', justifyContent: 'center', alignItems: 'center', marginBottom: 15}}>
             <CustomText
-              size={'medium'}
-            >{weather.current.condition.text}</CustomText>
+              size={'small'}
+            >
+              {weather.current.condition.text}
+            </CustomText>
             <Image
               style={styles.tinyLogo}
               source={{uri: weather.current.condition.icon.replace(/^\/\//, "https:")}}
@@ -78,7 +137,7 @@ function WeatherCityModal({route, navigation}) {
           <View style=
             {[
               {backgroundColor: colors.card},
-              {borderRadius: 15, marginLeft: 15, marginRight: 15},
+              {borderRadius: 15, marginLeft: 15, marginRight: 15, marginBottom: 15},
               {alignItems: 'center', justifyContent:'space-around', flexDirection: 'row'}]}>
             <View style={{alignItems: 'center', flex:1}}>
               <CustomIcon 
@@ -119,9 +178,6 @@ function WeatherCityModal({route, navigation}) {
             />
           </View>
         </View>
-          :
-          <></>
-      }
     </SafeAreaView>
   );
 }
@@ -133,11 +189,11 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   tinyLogo: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
   },
   logo: {
-    width: 66,
-    height: 58,
-  },
+    width: 40,
+    height: 40
+  }
 });
