@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import { MainWeatherContext } from '../context/MainWeatherContext';
@@ -10,6 +10,7 @@ import CustomTextInput from './CustomTextInput';
 function SearchCityAutocomplete({}){
   const { colors } = useTheme();
   const [searchText, setSearchText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [debouncedText, setDebouncedText] = useState('');
   const [results, setResults] = useState([]);
 
@@ -40,11 +41,13 @@ function SearchCityAutocomplete({}){
       try {
         const data = await getAutocompleteCities(debouncedText)
         setResults(data);
+        setIsLoading(false);
       } catch(error) {
         console.log(error);
       }
     }
     if(debouncedText) {
+      setIsLoading(true);
       fetchCities();
     }
   }, [debouncedText]);
@@ -83,19 +86,23 @@ function SearchCityAutocomplete({}){
           isPrimary
           style={styles.input}
           placeholderTextColor={colors.secondaryText}
-          placeholder='Search for a city'
+          placeholder='Search for a city or coordinates (lat,lon)'
           value={searchText}
           onChangeText={handleTextChange}
         />
       </View>
-      <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => (
-          <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
-        )}
-        renderItem={({ item }) => <CityItem city={item}/>}
-      />
+      {
+        isLoading ? <View style={{flex: 1, justifyContent:'center', alignItems: 'center'}}><ActivityIndicator /></View> : 
+          <FlatList
+            data={results}
+            keyExtractor={(item) => item.id}
+            ItemSeparatorComponent={() => (
+              <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
+            )}
+            renderItem={({ item }) => <CityItem city={item}/>}
+          />
+      }
+      
     </View>
   );
 }

@@ -99,13 +99,6 @@ function App(){
                   </Stack.Group>
               )
             }
-          {/* <Stack.Group screenOptions={{ presentation: 'modal' }}>
-          </Stack.Group> */}
-          {/* {state.isCitySelected ? (
-            <Stack.Screen name="City" component={MainWeatherScreen} />
-            ): (
-            <Stack.Screen name="SearchCity" component={SearchCityAutocomplete} />
-          )} */}
         </Stack.Navigator>
       </NavigationContainer>
     </MainWeatherContext.Provider>
