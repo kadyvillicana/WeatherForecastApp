@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import axios from 'axios';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import { MainWeatherContext } from '../context/MainWeatherContext';
 import { useTheme } from '@react-navigation/native';
 import { getAutocompleteCities } from '../utils/api';
+import CustomTextInput from './CustomTextInput';
 
-function SearchCityAutocomplete({navigation}){
+function SearchCityAutocomplete({}){
   const { colors } = useTheme();
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
@@ -79,9 +79,9 @@ function SearchCityAutocomplete({navigation}){
           color={colors.secondaryText}
           style={{ marginLeft: 1 }}
         />
-        <TextInput
+        <CustomTextInput
           isPrimary
-          style={[styles.input, {color: colors.text}]}
+          style={styles.input}
           placeholderTextColor={colors.secondaryText}
           placeholder='Search for a city'
           value={searchText}
