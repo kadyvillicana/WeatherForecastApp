@@ -12,7 +12,9 @@ This is a simple weather forecasting application built using React Native. The a
 ## Tech Stack
 
 - [React Native](https://reactnative.dev/)
-- [Weather API](https://www.weatherapi.com/)
+- [Weather API](https://www.weatherapi.com/) 
+- [React Navigation](https://reactnavigation.org/docs/getting-started/)
+- [Moment](https://momentjs.com/) 
 
 ## Installation
 
@@ -92,4 +94,11 @@ yarn android
 | `key` | `string` | **Required**. Your API key |
 | `q` | `string` | **Required**. Pass US Zipcode, UK Postcode, Canada Postalcode, IP address, Latitude/Longitude (decimal degree) or city name. |
 | `days` | `string` | **Required**. Number of days of weather forecast. Value ranges from 1 to 10|
+
+## App Screenshots
+![App Screenshot](https://user-images.githubusercontent.com/54822197/215671658-30222af8-2e1b-4b55-84eb-6062f1317854.png)
+
+![App Screenshot](https://user-images.githubusercontent.com/54822197/215671652-3ebec44f-fadc-4038-a932-1103a502f7be.png)
+
+![App Screenshot](https://user-images.githubusercontent.com/54822197/215671389-a98d5f7f-3e1b-4594-ac06-57e91ae25963.png)
 
