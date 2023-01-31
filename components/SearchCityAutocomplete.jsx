@@ -7,7 +7,8 @@ import { useTheme } from '@react-navigation/native';
 import { getAutocompleteCities } from '../utils/api';
 import CustomTextInput from './CustomTextInput';
 
-function SearchCityAutocomplete({}){
+// Component to search a city by name or coordinates. 
+function SearchCityAutocomplete({ }) {
   const { colors } = useTheme();
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ function SearchCityAutocomplete({}){
   const { setCity } = useContext(MainWeatherContext);
 
   const handleTextChange = useCallback((text) => {
-    if(!text){
+    if (!text) {
       setResults([]);
     }
     setSearchText(text);
@@ -42,27 +43,27 @@ function SearchCityAutocomplete({}){
         const data = await getAutocompleteCities(debouncedText)
         setResults(data);
         setIsLoading(false);
-      } catch(error) {
+      } catch (error) {
         console.log(error);
       }
     }
-    if(debouncedText) {
+    if (debouncedText) {
       setIsLoading(true);
       fetchCities();
     }
   }, [debouncedText]);
 
   const _setCity = async (city) => {
-    if(!city){
+    if (!city) {
       return
     }
     setCity(`${city.lat},${city.lon}`);
     clear();
   }
 
-  const CityItem = ({city}) => (
+  const CityItem = ({ city }) => (
     <TouchableOpacity onPress={() => _setCity(city)} style={styles.cityNameContainer}>
-      <View style={{flexDirection:"column"}}>
+      <View style={{ flexDirection: "column" }}>
         <CustomText size={'medium'} isPrimary>
           {city.name}, {city.region}
         </CustomText>
@@ -74,10 +75,10 @@ function SearchCityAutocomplete({}){
   )
 
   return (
-    <View style={{flex:1, marginTop: 30}}>
-      <View style={[styles.container, {backgroundColor: colors.card}]}>
-        <CustomIcon 
-          name="search" 
+    <View style={{ flex: 1, marginTop: 30 }}>
+      <View style={[styles.container, { backgroundColor: colors.card }]}>
+        <CustomIcon
+          name="search"
           size={15}
           color={colors.secondaryText}
           style={{ marginLeft: 1 }}
@@ -92,17 +93,17 @@ function SearchCityAutocomplete({}){
         />
       </View>
       {
-        isLoading ? <View style={{flex: 1, justifyContent:'center', alignItems: 'center'}}><ActivityIndicator /></View> : 
+        isLoading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View> :
           <FlatList
             data={results}
             keyExtractor={(item) => item.id}
             ItemSeparatorComponent={() => (
               <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
             )}
-            renderItem={({ item }) => <CityItem city={item}/>}
+            renderItem={({ item }) => <CityItem city={item} />}
           />
       }
-      
+
     </View>
   );
 }

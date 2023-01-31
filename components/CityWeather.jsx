@@ -1,12 +1,12 @@
 import { useTheme } from '@react-navigation/native';
-import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import moment from "moment";
 import { MainWeatherContext } from '../context/MainWeatherContext';
 import { getCityWeather } from '../utils/api';
+import CustomImage from './CustomImage';
 
 
 function CityWeather({navigation}) {
@@ -71,8 +71,8 @@ function CityWeather({navigation}) {
         onPress={() => navigation.navigate('DayWeatherModal', {day: item.date})}>
         <View style={{alignItems: 'center', justifyContent:'space-around', flexDirection: 'row', margin: 15}}>
           <View style={{flex: 1}}>
-            <Image
-              style={styles.logo}
+            <CustomImage
+              size='regular'
               source={{uri: item.day.condition.icon.replace(/^\/\//, "https:")}}
             />
           </View>
@@ -131,8 +131,8 @@ function CityWeather({navigation}) {
             >
               {weather.current.condition.text}
             </CustomText>
-            <Image
-              style={styles.tinyLogo}
+            <CustomImage
+              size='tiny'
               source={{uri: weather.current.condition.icon.replace(/^\/\//, "https:")}}
             />
           </View>
@@ -185,17 +185,3 @@ function CityWeather({navigation}) {
 }
 
 export default CityWeather;
-
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 50,
-  },
-  tinyLogo: {
-    width: 30,
-    height: 30,
-  },
-  logo: {
-    width: 40,
-    height: 40
-  }
-});

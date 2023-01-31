@@ -10,12 +10,14 @@ const FontSize = {
   mega: 75,
 };
 
-function CustomText({size, style, children, isPrimary}) {
+// CustomText component to display text with different font size and color 
+// based on the theme and the passed size and isPrimary props
+function CustomText({ size, style, children, isPrimary }) {
   const { colors } = useTheme();
   return (
     <Text style={[
       {
-        fontSize:FontSize[size], 
+        fontSize: FontSize[size],
         fontFamily: "QuattrocentoSans",
         color: (isPrimary ? colors.text : colors.secondaryText),
         ...style

@@ -14,16 +14,16 @@ function CustomTextInput(props) {
   const { colors } = useTheme();
   const { style, size } = props;
   return (
-    <TextInput 
+    <TextInput
       {...props}
       style={[
         {
-          fontSize:FontSize[size], 
+          fontSize: FontSize[size],
           fontFamily: "QuattrocentoSans",
           color: colors.text,
           ...style
         }
-    ]} />
+      ]} />
   )
 }
 
