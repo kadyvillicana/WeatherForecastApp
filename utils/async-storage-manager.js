@@ -9,10 +9,10 @@ const storeData = async (key, data) => {
   }
 };
 
-const retrieveData = async (key) => {
+const retrieveData = async key => {
   try {
     const jsonValue = await AsyncStorage.getItem(key);
-    if(jsonValue !== null) {
+    if (jsonValue !== null) {
       return JSON.parse(jsonValue);
     }
   } catch (error) {
@@ -20,11 +20,11 @@ const retrieveData = async (key) => {
   }
 };
 
-const removeItem = async (key) => {
+const removeItem = async key => {
   try {
-    await AsyncStorage.removeItem(key)
-  } catch(error) {
-    console.log(error)
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    console.log(error);
   }
 }
 
