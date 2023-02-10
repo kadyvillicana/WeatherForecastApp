@@ -1,10 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer} from '@react-navigation/native';
-import { StyleSheet } from 'react-native';
-import SearchCityAutocomplete from './components/SearchCityAutocomplete';
-import { removeItem, retrieveData, storeData } from './utils/async-storage-manager';
-import { MainWeatherContext } from './context/MainWeatherContext';
 import CityWeather from './components/CityWeather';
 import DayWeatherModal from './components/DayWeatherModal';
 import { useWeatherStore } from './store';
@@ -54,11 +50,5 @@ function App(){
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    },
-  });
 
 export default App;

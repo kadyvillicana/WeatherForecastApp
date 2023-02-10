@@ -1,6 +1,6 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useEffect } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import moment from "moment";

@@ -9,7 +9,6 @@ import CityItem from './CityItem';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import CustomTextInput from './CustomTextInput';
-import SearchCityAutocomplete from './SearchCityAutocomplete';
 
 function Home() {
   const { colors } = useTheme();
