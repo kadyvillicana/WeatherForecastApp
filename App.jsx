@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer} from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
@@ -7,70 +7,22 @@ import { removeItem, retrieveData, storeData } from './utils/async-storage-manag
 import { MainWeatherContext } from './context/MainWeatherContext';
 import CityWeather from './components/CityWeather';
 import DayWeatherModal from './components/DayWeatherModal';
+import { useWeatherStore } from './store';
+import { shallow } from 'zustand/shallow';
+import Home from './components/Home';
 
 const Stack = createNativeStackNavigator();
 
 function App(){
-  const [state, dispatch] = React.useReducer(
-    (prevState, action) => {
-      switch (action.type) {
-        case 'RESTORE_CITY':
-          return {
-            ...prevState,
-            city: action.city,
-            isCitySelected: true,
-          };
-        case 'SET_CITY':
-          return {
-            ...prevState,
-            isCitySelected: true,
-            city: action.city,
-          };
-        case 'REMOVE_CITY':
-          return {
-            ...prevState,
-            isCitySelected: false,
-            city: null,
-          };
-      }
-    },
-    {
-      isCitySelected: false,
-      city: null,
-    }
-  );
-  
-  useEffect(() => {
-    const bootstrapAsync = async () => {
-      let citySelected;
-      try {
-        citySelected = await retrieveData('citySelected');
-        if(citySelected) {
-          dispatch({type: 'RESTORE_CITY', city: citySelected})
-        }
-      }
-      catch (error) {
-        console.log(error);
-      }
-    }
-    bootstrapAsync();
-  }, []);
+  const { citySelected, getCitySelected } = useWeatherStore((state) => 
+  ({
+    citySelected: state.citySelected,
+    getCitySelected: state.getCitySelected,
+  }), shallow);
 
-  const cityContext = useMemo(
-    () => ({
-      setCity: async (data) => {
-        await storeData('citySelected', data);
-        dispatch({ type: 'SET_CITY', city: data });
-      },
-      removeCity: async () =>  {
-        dispatch({ type: 'REMOVE_CITY' })
-        await removeItem('citySelected');
-        await removeItem('cityWeather');
-      },
-      state,
-    }),
-    [state]
-  );
+  useEffect(() => {
+    getCitySelected();
+  }, []);
 
   const MyTheme = {
     colors: {
@@ -84,24 +36,22 @@ function App(){
   };
 
   return (
-    <MainWeatherContext.Provider value={cityContext}>
-      <NavigationContainer theme={MyTheme}>
-        <Stack.Navigator>
-            {
-              state.isCitySelected ? (
-                <Stack.Group screenOptions={{ presentation: 'modal' }}>
-                  <Stack.Screen name="CityWeather" component={CityWeather} options={{headerShown: false}} />
-                  <Stack.Screen name="DayWeatherModal" component={DayWeatherModal}  options={{headerShown: false}}/>
+    <NavigationContainer theme={MyTheme}>
+      <Stack.Navigator>
+          {
+            citySelected ? (
+              <Stack.Group screenOptions={{ presentation: 'modal' }}>
+                <Stack.Screen name="CityWeather" component={CityWeather} options={{headerShown: false}} />
+                <Stack.Screen name="DayWeatherModal" component={DayWeatherModal}  options={{headerShown: false}}/>
+              </Stack.Group>
+              ) : (
+                <Stack.Group>
+                  <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
                 </Stack.Group>
-                ) : (
-                  <Stack.Group>
-                    <Stack.Screen name="Home" component={SearchCityAutocomplete} options={{headerShown: false}} />
-                  </Stack.Group>
-              )
-            }
-        </Stack.Navigator>
-      </NavigationContainer>
-    </MainWeatherContext.Provider>
+            )
+          }
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 

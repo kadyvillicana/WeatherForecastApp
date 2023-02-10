@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
-import { MainWeatherContext } from '../context/MainWeatherContext';
 import { useTheme } from '@react-navigation/native';
 import { getAutocompleteCities } from '../utils/api';
 import CustomTextInput from './CustomTextInput';
+import { useWeatherStore } from '../store';
+import CityItem from './CityItem';
 
 // Component to search a city by name or coordinates. 
 function SearchCityAutocomplete({ }) {
@@ -15,7 +16,7 @@ function SearchCityAutocomplete({ }) {
   const [debouncedText, setDebouncedText] = useState('');
   const [results, setResults] = useState([]);
 
-  const { setCity } = useContext(MainWeatherContext);
+  const setCitySelected  = useWeatherStore((state) => state.setCitySelected);
 
   const handleTextChange = useCallback((text) => {
     if (!text) {
@@ -57,25 +58,18 @@ function SearchCityAutocomplete({ }) {
     if (!city) {
       return
     }
-    setCity(`${city.lat},${city.lon}`);
+    await setCitySelected(city)
     clear();
   }
 
-  const CityItem = ({ city }) => (
-    <TouchableOpacity onPress={() => _setCity(city)} style={styles.cityNameContainer}>
-      <View style={{ flexDirection: "column" }}>
-        <CustomText size={'medium'} isPrimary>
-          {city.name}, {city.region}
-        </CustomText>
-        <CustomText size={'medium'}>
-          {city.country}
-        </CustomText>
-      </View>
+  const CityItemList = ({ city }) => (
+    <TouchableOpacity onPress={() => _setCity(city)}>
+      <CityItem city={city} />
     </TouchableOpacity>
   )
 
   return (
-    <View style={{ flex: 1, marginTop: 30 }}>
+    <View>
       <View style={[styles.container, { backgroundColor: colors.card }]}>
         <CustomIcon
           name="search"
@@ -87,7 +81,7 @@ function SearchCityAutocomplete({ }) {
           isPrimary
           style={styles.input}
           placeholderTextColor={colors.secondaryText}
-          placeholder='Search for a city or coordinates (lat,lon)'
+          placeholder='Search for a city'
           value={searchText}
           onChangeText={handleTextChange}
         />
@@ -95,12 +89,13 @@ function SearchCityAutocomplete({ }) {
       {
         isLoading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View> :
           <FlatList
+            style={{display: (results.length > 0 ? 'flex': 'none')}}
             data={results}
             keyExtractor={(item) => item.id}
             ItemSeparatorComponent={() => (
               <View style={{ backgroundColor: colors.secondaryText, height: 1 }} />
             )}
-            renderItem={({ item }) => <CityItem city={item} />}
+            renderItem={({ item }) => <CityItemList city={item} />}
           />
       }
 
@@ -129,5 +124,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     marginLeft: 15,
-  }
+  },
 });

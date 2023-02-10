@@ -1,44 +1,32 @@
 import { useTheme } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import moment from "moment";
-import { MainWeatherContext } from '../context/MainWeatherContext';
-import { getCityWeather } from '../utils/api';
 import CustomImage from './CustomImage';
-
+import { useWeatherStore } from '../store';
+import {shallow} from "zustand/shallow";
 
 function CityWeather({navigation}) {
+  const { citySelected, getWeatherByCity, cityWeather, isLoading, removeCitySelected } = useWeatherStore((state) => 
+  ({
+    citySelected: state.citySelected,
+    getWeatherByCity: state.getWeatherByCity,
+    cityWeather: state.cityWeather,
+    isLoading: state.isLoading,
+    removeCitySelected: state.removeCitySelected,
+  }), shallow);
+
+
   const { colors } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
-  const { state, removeCity } = useContext(MainWeatherContext);
-  const coordinates = state.city;
-  const [weather, setWeather] = useState({
-    location: {
-      name: '-'
-    },
-    current: {
-      temp_c: '-',
-      condition: {
-        text: '-',
-        icon: '',
-        wind_kph: '',
-        uv: '',
-        humidity: '',
-      }
-    },
-    forecast: {
-      forecastday: []
-    }
-  });
+
+  const coordinates = `${citySelected.lat},${citySelected.lon}`;
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
-        const data = await getCityWeather(coordinates, false);
-        setWeather(data);
-        setIsLoading(false);
+        await getWeatherByCity(coordinates, false);
       } catch (error) {
         console.log(error);
       }
@@ -52,14 +40,11 @@ function CityWeather({navigation}) {
   const refreshWeatherData = () => {
     const fetchWeatherData = async () => {
       try {
-        const data = await getCityWeather(coordinates, true);
-        setWeather(data);
-        setIsLoading(false);
+        await getWeatherByCity(coordinates, true);
       } catch (error) {
         console.log(error);
       }
     };
-    setIsLoading(true);
     fetchWeatherData();
   }
 
@@ -103,7 +88,7 @@ function CityWeather({navigation}) {
         <View style={{flex: 1}}>
           <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around'}}>
             <TouchableOpacity
-              onPress={() => { removeCity() }}>
+              onPress={() => { removeCitySelected() }}>
               <CustomIcon 
                 name="exchange" 
                 size={25}
@@ -111,7 +96,7 @@ function CityWeather({navigation}) {
                 style={{ marginLeft: 1, padding: 10 }}
               />
             </TouchableOpacity>
-            <CustomText size={'large'} isPrimary >{weather.location.name}</CustomText>
+            <CustomText size={'large'} isPrimary >{cityWeather.location.name}</CustomText>
             <TouchableOpacity
               onPress={() => { refreshWeatherData() }}>
               <CustomIcon 
@@ -123,17 +108,17 @@ function CityWeather({navigation}) {
             </TouchableOpacity>
           </View>
           <View style={{alignItems: 'center'}}>
-            <CustomText size={'mega'}>{weather.current.temp_c}°</CustomText>
+            <CustomText size={'mega'}>{cityWeather.current.temp_c}°</CustomText>
           </View>
           <View style={{flexDirection:'row', justifyContent: 'center', alignItems: 'center', marginBottom: 15}}>
             <CustomText
               size={'small'}
             >
-              {weather.current.condition.text}
+              {cityWeather.current.condition.text}
             </CustomText>
             <CustomImage
               size='tiny'
-              source={{uri: weather.current.condition.icon.replace(/^\/\//, "https:")}}
+              source={{uri: cityWeather.current.condition.icon.replace(/^\/\//, "https:")}}
             />
           </View>
           <View style=
@@ -148,7 +133,7 @@ function CityWeather({navigation}) {
                 color={colors.secondaryText}
                 style={{ marginLeft: 1, padding: 10 }}
               />
-              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{weather.current.wind_kph} km/h</CustomText>
+              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{cityWeather.current.wind_kph} km/h</CustomText>
               <CustomText style={{padding: 5}} size={'small'}>Wind</CustomText>
             </View>
             <View style={{alignItems: 'center', flex: 1}}>
@@ -158,7 +143,7 @@ function CityWeather({navigation}) {
                 color={colors.secondaryText}
                 style={{ marginLeft: 1, padding: 10 }}
               />
-              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{weather.current.uv}</CustomText>
+              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{cityWeather.current.uv}</CustomText>
               <CustomText style={{padding: 5}} size={'small'}>UV</CustomText>
             </View>
             <View style={{alignItems: 'center', flex: 1}}>
@@ -168,13 +153,13 @@ function CityWeather({navigation}) {
                 color={colors.secondaryText}
                 style={{ marginLeft: 1, padding: 10 }}
               />
-              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{weather.current.humidity} %</CustomText>
+              <CustomText style={{padding: 5}} size={'medium'} isPrimary>{cityWeather.current.humidity} %</CustomText>
               <CustomText style={{padding: 5}} size={'small'}>Humidity</CustomText>
             </View>
           </View>
           <View style={{flex: 1}}>
             <FlatList
-              data={weather.forecast.forecastday}
+              data={cityWeather.forecast.forecastday}
               keyExtractor={(item) => item.date}
               renderItem={({ item }) => dayWeatherItemList({item})}
             />
