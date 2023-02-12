@@ -1,15 +1,18 @@
 import { useTheme } from '@react-navigation/native';
 import moment from 'moment';
-import React, { useEffect } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, View } from 'react-native';
+import React, { createRef, useEffect } from 'react';
+import { ActivityIndicator, Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { useWeatherStore } from '../store';
 import CustomIcon from './CustomIcon';
 import CustomText from './CustomText';
 import HourWeatherItemList from './HourWeatherItemList';
 
+const ITEM_HEIGHT = 50;
+
 function DayWeatherModal({ route, navigation }) {
   const { colors } = useTheme();
   const { day } = route.params;
+  const flatListRef = createRef(); 
 
   const { weatherByDay, getWeatherByDay, isLoading } = useWeatherStore((state) => ({
     weatherByDay: state.weatherByDay,
@@ -17,10 +20,29 @@ function DayWeatherModal({ route, navigation }) {
     isLoading: state.isLoading
   }));
 
+  const scrollToIndex = (index, animated) => {
+    if (flatListRef) {
+      flatListRef.current && flatListRef.current.scrollToIndex({ index, animated });
+    }
+  };
+
+  const getItemLayout = (data, index) => {
+    return { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index };
+  };
+
   // Fetch the weather data for the day when the component is mounted
   useEffect(() => {
     getWeatherByDay(day);
   }, [])
+  
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const d = new Date();
+      let hour = d.getHours();
+      scrollToIndex(hour, true);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [weatherByDay]);
 
   if (isLoading) {
     return (
@@ -82,8 +104,10 @@ function DayWeatherModal({ route, navigation }) {
       </View>
       <FlatList
         data={weatherByDay.hour}
+        ref={flatListRef}
         keyExtractor={(item) => item.time}
         renderItem={({ item }) => HourWeatherItemList({ item })}
+        getItemLayout={getItemLayout}
       />
     </View>
   )
